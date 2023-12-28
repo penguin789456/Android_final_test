@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Android_final_test</string>
+    <string name="Detail">Detail</string>
+    <string name="Link">Link</string>
 </resources>
