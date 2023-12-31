@@ -1,6 +1,7 @@
 package com.example.android_final_test
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
@@ -12,6 +13,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,6 +22,7 @@ import com.google.android.gms.location.LocationServices
 class MainActivity : AppCompatActivity() {
     private lateinit var btn1: Button
     private lateinit var location: Location
+    private var locationCode:Int=1001
     private lateinit var mLocationManager:LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,11 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-
-        Log.d("location",LocationGet().toString())
-
-
+        LocationGet()
         var latitude=25.03655
         var longitude=121.86594
         btn1=findViewById(R.id.button1)
@@ -42,17 +41,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun downloadFile(url: String) {
-        val uri = Uri.parse(url)
-
-        val request = DownloadManager.Request(uri)
-            .setTitle(uri.lastPathSegment)  // 使用原始檔案名稱
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, uri.lastPathSegment)
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager.enqueue(request)
-    }
     private fun LocationGet() {
             if (ActivityCompat.checkSelfPermission(
                     this,
@@ -62,26 +50,16 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                ActivityCompat.requestPermissions(this,arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION),1001)
-            }else{
-                location= mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
+                ActivityCompat.requestPermissions(this,arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION),locationCode)
+            }else {
+                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
             }
-        location
     }
 
+
+    @SuppressLint("MissingPermission")
     private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
         var getLocation:Location
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location : Location? ->}.also { getLocation=location }
 
@@ -95,4 +73,18 @@ class MainActivity : AppCompatActivity() {
         intent.setPackage("com.google.android.apps.maps")
         startActivity(intent)
     }
+    @SuppressLint("MissingPermission")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == locationCode) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED&&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "取得權限", Toast.LENGTH_SHORT).show()
+                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
+            } else {
+                Toast.makeText(this, "需要定位權限", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }
