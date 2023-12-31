@@ -14,47 +14,18 @@ import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity(),LocationListener {
 
+    private lateinit var mLocationManager: LocationManager      //LocationManager
     private var hasGPS:Boolean = false          //檢查是否有GPS
-    private lateinit var mLocationManager: LocationManager   //LocationManager
-    private var nowLocation = Location("nowLocation")  //現在位置
-    private var eventLocation = Location("eventLocation") //活動位置
-    private  var eventDistance: Int? = null  //活動距離(公尺)
-
-    //test 可刪
-    private lateinit var longitude: TextView // 經度
-    private lateinit var latitude: TextView  // 緯度
-    private lateinit var tvDistance: TextView
-    //test
+    private var eventDistance: Int? = null      //活動距離(公尺)
+    private var isInEventRange:Boolean = false  //判斷是否有在範圍內
+    private var nowLocation = Location("nowLocation")       //現在位置
+    private var eventLocation = Location("eventLocation")   //活動位置
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
         checkLocationPermission()  //檢查location權限
-
-
-
-        //test
-        longitude = findViewById(R.id.testTV)
-        latitude = findViewById(R.id.testTV2)
-        tvDistance = findViewById(R.id.tvDistance)
-        //test
-    }
-
-    //檢查location權限
-    private fun checkLocationPermission(){
-        hasGPS = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) //檢查GPS是否啟用
-        if(hasGPS){
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                    {
-                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)
-                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),1)
-                    }
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0.01f,this)  //取得位置(2秒更新,移動1m更新)
-        }else{
-                Log.d("LTag","設備未提供定位服務")  //如果沒找到GPS
-            }
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -65,24 +36,45 @@ class MainActivity : AppCompatActivity(),LocationListener {
         eventLocation.longitude =  -122.080816  //之後改為由sql匯入Event經緯度(用function回傳)
         eventLocation.latitude = 37.421306
 
-        getDistanceToEvent( eventLocation.longitude,eventLocation.latitude)
-        //test
-        longitude.text = nowLocation.longitude.toString()
-        latitude.text = nowLocation.latitude.toString()
-        Log.d("LTag","longitude${nowLocation.longitude},latitude${nowLocation.latitude},distance:${eventDistance}")
-        //test
+        getDistanceToEvent( eventLocation.longitude,eventLocation.latitude)  //距離在eventDistance
+        isInEventRange = inEventRange(eventDistance!!)  //判斷是否在活動範圍內
+
+        Log.d("LTag","longitude${nowLocation.longitude},latitude${nowLocation.latitude} \n inEventRange:${isInEventRange}")
+    }
+
+    //檢查location權限
+    private fun checkLocationPermission(){
+        hasGPS = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) //檢查GPS是否啟用
+        if(hasGPS){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),1)
+            }
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1.0f,this)  //取得位置(1秒更新,移動1m更新)
+        }else{
+            Log.d("LTag","設備未提供定位服務")  //如果沒找到GPS
+        }
     }
 
     //取得與活動間的距離
     private fun getDistanceToEvent(longitude:Double,latitude:Double) {
         //計算距離
         eventDistance = nowLocation.distanceTo(eventLocation).toInt()
-        tvDistance.text = eventDistance.toString()
+        Log.d("LTag","eventDistance:${eventDistance}")
+    }
+
+    //判斷是否進入活動範圍
+    private fun inEventRange(distance:Int): Boolean {
+        //距離活動小於50m 回傳true
+        return distance < 50
     }
 
     //取得活動位置
     private fun getEventLocation(){
         //透過sql回傳所有經緯度，然後使用透過比大小，將距離我們最近的活動訊息傳回來。
+        //sql 
     }
 
     override fun onResume() {
