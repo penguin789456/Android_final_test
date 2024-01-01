@@ -5,8 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -15,10 +13,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Fragment_advertise.newInstance] factory method to
+ * Use the [Fragment_Link.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Fragment_advertise : Fragment() {
+class Fragment_Link : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -36,31 +34,7 @@ class Fragment_advertise : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_advertise, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val btnExit = view.findViewById<Button>(R.id.btnexit)
-        btnExit.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView,Fragment_list())
-                commit()
-            }
-        }
-
-        val recArrayN = arguments?.getStringArray("ActivityName")
-        val recArrayC = arguments?.getStringArray("ActivityContent")
-        val showMessage = view.findViewById<TextView>(R.id.msgCon)
-        var s = ""
-        if (recArrayN != null && recArrayC !=null) {
-            for (itemN in recArrayN){
-                for (itemC in recArrayC){
-                    s+=itemN.toString() + "\n" + itemC.toString() + "\n"
-                }
-            }
-        }
-        showMessage.text = s
+        return inflater.inflate(R.layout.fragment__link, container, false)
     }
 
     companion object {
@@ -70,12 +44,12 @@ class Fragment_advertise : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment Fragment_advertise.
+         * @return A new instance of fragment Fragment_Link.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            Fragment_advertise().apply {
+            Fragment_Link().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

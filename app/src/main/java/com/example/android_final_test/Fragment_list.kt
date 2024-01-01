@@ -40,10 +40,21 @@ class Fragment_list : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val AName = arrayOf("XXX","OOO","QQQ","YYY","ZZZ")
+        val AContent = arrayOf("111","222","333","444","555")
+
+        val bundle = Bundle()
+        bundle.putStringArray("ActivityName",AName)
+        bundle.putStringArray("ActivityContent",AContent)
+
+        val fragment = Fragment_advertise()
+        fragment.arguments = bundle
+
         val btnDet = view.findViewById<Button>(R.id.btnDetail)
         btnDet.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView,Fragment_advertise())
+                replace(R.id.fragmentContainerView,fragment)
                 commit()
             }
         }
@@ -51,10 +62,12 @@ class Fragment_list : Fragment() {
         val btnLink = view.findViewById<Button>(R.id.btnLink)
         btnLink.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView,Fragment_advertise())
+                replace(R.id.fragmentContainerView,Fragment_Link())
                 commit()
             }
         }
+
+
     }
 
     companion object {

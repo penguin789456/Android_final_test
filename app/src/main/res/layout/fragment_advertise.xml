@@ -13,7 +13,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/exit"
+            android:id="@+id/btnexit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="X"
@@ -22,7 +22,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/msgCon"
         android:layout_width="match_parent"
         android:layout_height="345dp"
         android:text="TextView"

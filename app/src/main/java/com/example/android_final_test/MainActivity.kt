@@ -13,16 +13,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val btnLink = findViewById<Button>(R.id.btnLink)
-
-        /*val AName = arrayOf("XXX","OOO","QQQ","YYY","ZZZ")
+        val AName = arrayOf("XXX","OOO","QQQ","YYY","ZZZ")
         val AContent = arrayOf("111","222","333","444","555")
 
         val bundle = Bundle()
-        bundle.putStringArray("myDate",myName)
+        bundle.putStringArray("ActivityName",AName)
+        bundle.putStringArray("ActivityContent",AContent)
 
         val fragment = Fragment_advertise()
-        fragment.arguments = bundle*/
+        fragment.arguments = bundle
 
 
 
