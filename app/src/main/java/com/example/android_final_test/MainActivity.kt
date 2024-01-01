@@ -8,12 +8,10 @@ import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
-import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity(),LocationListener {
-    data class Event(val name: String, val longitude: Double, val latitude: Double)  //創建Event資料型態 儲存活動位置
+    data class Event(val id:String,val name: String, val longitude: Double, val latitude: Double,val info:String,val address:String)  //創建Event資料型態 儲存活動位置
 
     private lateinit var mLocationManager: LocationManager      //LocationManager
     private var hasGPS:Boolean = false          //檢查是否有GPS
@@ -23,12 +21,12 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private var eventLocation = Location("eventLocation")   //活動位置
 
     //test events 之後改由sql匯入
-    private val events = listOf(
-        Event("event1",-122.080816,37.421306),
-        Event("event2",-122.0802,37.42132),
-        Event("event3", -122.078932,37.421435),
-        Event("event4", -122.082862,37.422066)
-    )
+   /* private val events = listOf(
+        Event("001","event1",-122.080816,37.421306,"1111","1010"),
+        Event("002","event2",-122.0802,37.42132,"2222","2020"),
+        Event("003","event3", -122.078932,37.421435,"3333","3030"),
+        Event("004","event4", -122.082862,37.422066,"4444","4040")
+    )*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,14 +37,14 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
-        val nearestEvent = findNearestEvent(events)
+        val nearestEvent = findNearestEvent()
         getEventLocation(nearestEvent!!.latitude,nearestEvent.longitude)     //活動經緯度
         eventDistance = nowLocation.distanceTo(eventLocation)           //取得與活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
 
         Log.d("LTag","nowLongitude:${nowLocation.longitude} \nnowLatitude:${nowLocation.latitude} ")
-        Log.d("LTag","eventName:${nearestEvent.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \nDistance:${eventDistance}m\n" +
-                                "inEventRange:${isInEventRange}")
+        Log.d("LTag","eventName:${nearestEvent.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
+                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}")
     }
 
     //取得現在位置
@@ -68,9 +66,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     //找出最近的活動
-    private fun findNearestEvent(events: List<Event>): Event? {
+    private fun findNearestEvent(): Event? {
         var nearestEvent: Event? = null
         var minDistance = Float.MAX_VALUE
+        var events = readEventsFromDatabase() //改由sql匯入 readEventsFromDatabase()
 
         for(event in events){
             val location = Location("event")
@@ -102,6 +101,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
     }
 
+    //暫時的，之後改由slq匯入list(用cursor)
+    private fun readEventsFromDatabase(): List<Event> {
+        return listOf(
+            Event("001", "event1", -122.080816, 37.421306, "1111", "1010")
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)  //重新取得location
@@ -112,3 +118,5 @@ class MainActivity : AppCompatActivity(),LocationListener {
         mLocationManager.removeUpdates(this)  //取消location更新
     }
 }
+
+
