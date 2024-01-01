@@ -1,6 +1,7 @@
 package com.example.android_final_test
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
         checkLocationPermission()  //檢查location權限
-        readCSV2DataBase()
+        checkFirstRun()            //檢查是否第一次開啟程式
 
     }
 
@@ -107,10 +108,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
         )
     }
 
+    //將CSV資料寫入資料庫
     private fun readCSV2DataBase(){
         val inputStream: InputStream = resources.openRawResource(R.raw.acd4f2fa19cd40ed)
         val reader = BufferedReader(InputStreamReader(inputStream))
-
 
         reader.readLine()
         var line: String?
@@ -124,11 +125,19 @@ class MainActivity : AppCompatActivity(),LocationListener {
             val longitude:Double = data?.get(4)?.toDouble() ?: 0.0
             val latitude:Double = data?.get(5)?.toDouble() ?: 0.0
             var event:Event = Event(id,name,tel,address,longitude,latitude)
-            dbHelper.insertEvent(event)
+            //dbHelper.insertEvent(event)
 
             Log.d("LTag","${event.id}:${event.name}")
         }
         reader.close()
+    }
+    private fun checkFirstRun() {
+        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val isFirstRun = sharedPreferences.getBoolean("isFirstRun", true)
+        if (isFirstRun) {
+            readCSV2DataBase()
+            sharedPreferences.edit().putBoolean("isFirstRun", false).apply()
+        }
     }
     override fun onResume() {
         super.onResume()
