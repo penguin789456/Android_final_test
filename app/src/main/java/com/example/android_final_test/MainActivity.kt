@@ -13,20 +13,22 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import android.util.Log
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 
 
 class MainActivity : AppCompatActivity(),LocationListener {
-    //data class Event(val id:Long,val name: String, val longitude: Double, val latitude: Double,val address:String)  //創建Event資料型態 儲存活動位置
 
     private lateinit var mLocationManager: LocationManager      //LocationManager
+    private lateinit var event:List<Event>                      //全部event資料 內含:id,name,tel,address,longitude,latitude
+    private lateinit var dbHelper: DBHelper
+    private lateinit var db: SQLiteDatabase
+    private lateinit var textView: TextView //測試用可刪
     private var hasGPS:Boolean = false          //檢查是否有GPS
     private var eventDistance: Float? = null      //活動距離(公尺)
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
     private var nowLocation = Location("nowLocation")       //現在位置
     private var eventLocation = Location("eventLocation")   //活動位置
-    private lateinit var dbHelper: DBHelper
-    private lateinit var db: SQLiteDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,13 +36,26 @@ class MainActivity : AppCompatActivity(),LocationListener {
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
+
+        event = dbHelper.queryAllEvents(nowLocation)  //取的所有event資料
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
+
+        //--測試--- 可刪
+        textView = findViewById(R.id.testTV)
+        getNowLocation(0.0,0.0)
+        textView.text = "資料準備中...\n" +
+                "\n" +
+                "nowLongitude:\n" +
+                "${nowLocation.longitude} \n" +
+                "nowLatitude\n" +
+                "${nowLocation.latitude}"
+        //--測試---
     }
 
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
-        val nearestEvent =dbHelper.queryAllEvents(nowLocation)               //找出最近的活動
+        val nearestEvent =dbHelper.queryNearestEvents(nowLocation)               //找出最近的活動
         if (nearestEvent != null) {
             getEventLocation(nearestEvent.latitude,nearestEvent.longitude)
         }
@@ -49,12 +64,14 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
                 "Distance:${eventDistance}m \ninEventRange:${isInEventRange}")
+        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
+                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
     }
 
     //取得現在位置
     private fun getNowLocation(latitude: Double, longitude: Double) {
-        /*nowLocation.longitude = longitude
-        nowLocation.latitude = latitude*/
+//        nowLocation.longitude = longitude
+//        nowLocation.latitude = latitude
         //測試用致理門口
         nowLocation.longitude = 121.465042
         nowLocation.latitude = 25.021002

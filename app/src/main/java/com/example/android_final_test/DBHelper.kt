@@ -67,7 +67,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         }
     }
 
-    fun queryAllEvents(nowLocation:Location): Event? {
+    fun queryNearestEvents(nowLocation:Location): Event? {
         val events = mutableListOf<Event>() //全部Events
         var cursor: Cursor? = null
 
@@ -94,8 +94,37 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
             cursor?.close()
             Log.d("LTag", "Found cursor")
         }
-
         return findNearestEvent(nowLocation,events)
+    }
+    //將所有event資料回傳
+    fun queryAllEvents(nowLocation:Location): List<Event> {
+        val events = mutableListOf<Event>() //全部Events
+        var cursor: Cursor? = null
+
+        try {
+            cursor = readableDatabase.rawQuery("SELECT * FROM $TABLE_NAME", null)
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
+                    val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
+                    val tel = cursor.getString(cursor.getColumnIndex(COLUMN_TEL))
+                    val address = cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS))
+                    val longitude = cursor.getDouble(cursor.getColumnIndex(COLUMN_PX))
+                    val latitude = cursor.getDouble(cursor.getColumnIndex(COLUMN_PY))
+
+                    val event = Event(id, name, tel, address, longitude, latitude) //單一Event
+                    events.add(event)
+                } while (cursor.moveToNext())
+            } else {
+                Log.d("LTag", "No events found in the database")
+            }
+        } catch (e: Exception) {
+            Log.e("LTag", "Query failed", e)
+        } finally {
+            cursor?.close()
+            Log.d("LTag", "Found cursor")
+        }
+        return events
     }
     //找出最近的活動
     private fun findNearestEvent(nowLocation: Location,events: List<Event>): Event? {
@@ -115,7 +144,5 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         }
         return nearestEvent
     }
-
-
 }
 
