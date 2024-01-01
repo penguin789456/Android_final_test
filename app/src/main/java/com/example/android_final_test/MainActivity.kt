@@ -15,7 +15,7 @@ import androidx.core.app.ActivityCompat
 
 
 class MainActivity : AppCompatActivity(),LocationListener {
-    data class Event(val id:String,val name: String, val longitude: Double, val latitude: Double,val info:String,val address:String)  //創建Event資料型態 儲存活動位置
+    //data class Event(val id:Long,val name: String, val longitude: Double, val latitude: Double,val address:String)  //創建Event資料型態 儲存活動位置
 
     private lateinit var mLocationManager: LocationManager      //LocationManager
     private var hasGPS:Boolean = false          //檢查是否有GPS
@@ -23,27 +23,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
     private var nowLocation = Location("nowLocation")       //現在位置
     private var eventLocation = Location("eventLocation")   //活動位置
-
-    //test events 之後改由sql匯入
-   /* private val events = listOf(
-        Event("001","event1",-122.080816,37.421306,"1111","1010"),
-        Event("002","event2",-122.0802,37.42132,"2222","2020"),
-        Event("003","event3", -122.078932,37.421435,"3333","3030"),
-        Event("004","event4", -122.082862,37.422066,"4444","4040")
-    )*/
+    private val dbHelper = DBHelper(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val inputStream: InputStream = resources.openRawResource(R.raw.acd4f2fa19cd40ed)
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        var line: String?
-        while (reader.readLine().also { line = it } != null) {
-            // 處理每一行的數據
-        }
-        reader.close()
 
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
         checkLocationPermission()  //檢查location權限
+        readCSV2DataBase()
+
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -114,11 +102,34 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     //暫時的，之後改由slq匯入list(用cursor)
     private fun readEventsFromDatabase(): List<Event> {
-        return listOf(
-            Event("001", "event1", -122.080816, 37.421306, "1111", "1010")
+        return  listOf(
+            Event(1123L, "event1", "1111", "1010", -122.080816, 37.421306),
         )
     }
 
+    private fun readCSV2DataBase(){
+        val inputStream: InputStream = resources.openRawResource(R.raw.acd4f2fa19cd40ed)
+        val reader = BufferedReader(InputStreamReader(inputStream))
+
+
+        reader.readLine()
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+
+            val data = line?.split(",")
+            val id = data?.get(0)?.toLong() ?: 0L
+            val name:String = data?.get(1) ?: ""
+            val tel:String = data?.get(2) ?: ""
+            val address:String = data?.get(3) ?: ""
+            val longitude:Double = data?.get(4)?.toDouble() ?: 0.0
+            val latitude:Double = data?.get(5)?.toDouble() ?: 0.0
+            var event:Event = Event(id,name,tel,address,longitude,latitude)
+            dbHelper.insertEvent(event)
+
+            Log.d("LTag","${event.id}:${event.name}")
+        }
+        reader.close()
+    }
     override fun onResume() {
         super.onResume()
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)  //重新取得location
