@@ -12,10 +12,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btnDet = findViewById<Button>(R.id.btnDetail)
+
         val btnLink = findViewById<Button>(R.id.btnLink)
 
-        /*val myName = arrayOf("XXX","OOO","QQQ","YYY","ZZZ")
+        /*val AName = arrayOf("XXX","OOO","QQQ","YYY","ZZZ")
+        val AContent = arrayOf("111","222","333","444","555")
 
         val bundle = Bundle()
         bundle.putStringArray("myDate",myName)
@@ -23,12 +24,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = Fragment_advertise()
         fragment.arguments = bundle*/
 
-        btnDet.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView3,Fragment_advertise())
-                commit()
-            }
-        }
+
 
 
 
