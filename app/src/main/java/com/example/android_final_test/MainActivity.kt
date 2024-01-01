@@ -7,8 +7,12 @@ import android.location.LocationListener
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
 import android.util.Log
 import androidx.core.app.ActivityCompat
+
 
 class MainActivity : AppCompatActivity(),LocationListener {
     data class Event(val id:String,val name: String, val longitude: Double, val latitude: Double,val info:String,val address:String)  //創建Event資料型態 儲存活動位置
@@ -30,6 +34,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val inputStream: InputStream = resources.openRawResource(R.raw.acd4f2fa19cd40ed)
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+            // 處理每一行的數據
+        }
+        reader.close()
 
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
         checkLocationPermission()  //檢查location權限
