@@ -44,15 +44,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
         checkFirstRun()            //檢查是否第一次開啟程式
 
         //--測試--- 可刪
-        textView = findViewById(R.id.testTV)
-        getNowLocation(0.0,0.0)
-        textView.text = "資料準備中...\n" +
-                "\n" +
-                "nowLongitude:\n" +
-                "${nowLocation.longitude} \n" +
-                "nowLatitude\n" +
-                "${nowLocation.latitude}"
-        //--測試---
+//        textView = findViewById(R.id.testTV)
+//        getNowLocation(0.0,0.0)
+//        textView.text = "資料準備中...\n" +
+//                "\n" +
+//                "nowLongitude:\n" +
+//                "${nowLocation.longitude} \n" +
+//                "nowLatitude\n" +
+//                "${nowLocation.latitude}"
+//        //--測試---
         SetRecyclerView(event)
     }
 
@@ -67,8 +67,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
                 "Distance:${eventDistance}m \ninEventRange:${isInEventRange}")
-        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
-                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
+//        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
+//                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
     }
 
     //取得現在位置
