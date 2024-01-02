@@ -15,6 +15,8 @@ import java.io.InputStreamReader
 import android.util.Log
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 class MainActivity : AppCompatActivity(),LocationListener {
@@ -51,6 +53,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 "nowLatitude\n" +
                 "${nowLocation.latitude}"
         //--測試---
+        SetRecyclerView(event)
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -146,6 +149,21 @@ class MainActivity : AppCompatActivity(),LocationListener {
     override fun onPause() {
         super.onPause()
         mLocationManager.removeUpdates(this)  //取消location更新
+    }
+
+    //生成RecyclerView
+    private fun SetRecyclerView(eventList:List<Event>){
+        val recyclerView=findViewById<RecyclerView>(R.id.Recycler_travel)
+        recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
+        val DataList=ArrayList<Event>()
+        for (event in eventList) {
+            Log.d("EventLog", event.toString())
+            DataList.add(Event(event.id,event.name,event.tel,event.address,event.longitude,event.latitude))
+        }
+        val adapter=travel_Adapter(this,DataList)
+        recyclerView.adapter = adapter
+//        Log.d("Events",eventList.toString())
+
     }
 }
 
