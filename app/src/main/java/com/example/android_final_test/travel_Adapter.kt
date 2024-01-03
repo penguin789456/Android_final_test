@@ -43,6 +43,13 @@ class travel_Adapter(private val context: Context, private val dataList: List<Ev
             intent.setPackage("com.google.android.apps.maps")
             it.context.startActivity(intent)
         }
+
+        holder.travel_detail.setOnClickListener {
+//            Log.d("intent","$origin,${currentItem.latitude},${currentItem.longitude}")
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&origin=$origin&destination=${currentItem.latitude},${currentItem.longitude}"))
+            intent.setPackage("com.google.android.apps.maps")
+            it.context.startActivity(intent)
+        }
     }
 
 

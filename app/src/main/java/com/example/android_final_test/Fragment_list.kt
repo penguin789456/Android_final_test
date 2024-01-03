@@ -51,21 +51,21 @@ class Fragment_list : Fragment() {
         val fragment = Fragment_detail()
         fragment.arguments = bundle
 
-        val btnDet = view.findViewById<Button>(R.id.btnDetail)
-        btnDet.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView,fragment)
-                commit()
-            }
-        }
+//        val btnDet = view.findViewById<Button>(R.id.btnDetail)
+//        btnDet.setOnClickListener {
+//            requireActivity().supportFragmentManager.beginTransaction().apply {
+//                replace(R.id.fragmentContainerView,fragment)
+//                commit()
+//            }
+//        }
 
-        val btnLink = view.findViewById<Button>(R.id.btnLink)
-        btnLink.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainerView,Fragment_Link())
-                commit()
-            }
-        }
+//        val btnLink = view.findViewById<Button>(R.id.btnLink)
+//        btnLink.setOnClickListener {
+//            requireActivity().supportFragmentManager.beginTransaction().apply {
+//                replace(R.id.fragmentContainerView,Fragment_Link())
+//                commit()
+//            }
+//        }
 
 
     }
