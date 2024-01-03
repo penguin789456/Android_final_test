@@ -9,7 +9,6 @@ import android.location.Location
 import android.util.Log
 
 data class Event(var id:Long, var name: String, var tel: String, var address: String, var longitude: Double, var latitude: Double)
-private lateinit  var main:MainActivity
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
@@ -143,6 +142,55 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
             }
         }
         return nearestEvent
+    }
+
+    //將附近1公里的Event回傳
+    fun queryNearEvents(nowLocation:Location): List<Event> {
+        val events = mutableListOf<Event>() //全部Events
+        var cursor: Cursor? = null
+
+        try {
+            cursor = readableDatabase.rawQuery("SELECT * FROM $TABLE_NAME", null)
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
+                    val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
+                    val tel = cursor.getString(cursor.getColumnIndex(COLUMN_TEL))
+                    val address = cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS))
+                    val longitude = cursor.getDouble(cursor.getColumnIndex(COLUMN_PX))
+                    val latitude = cursor.getDouble(cursor.getColumnIndex(COLUMN_PY))
+
+                    val event = Event(id, name, tel, address, longitude, latitude) //單一Event
+                    events.add(event)
+                } while (cursor.moveToNext())
+            } else {
+                Log.d("LTag", "No events found in the database")
+            }
+        } catch (e: Exception) {
+            Log.e("LTag", "Query failed", e)
+        } finally {
+            cursor?.close()
+            Log.d("LTag", "Found cursor")
+        }
+        return findNearEvents(nowLocation,events)
+    }
+
+    private fun findNearEvents(nowLocation: Location,events: List<Event>): List<Event> {
+        var nearEvents =  mutableListOf<Event>()
+
+        for(event in events){
+            val location = Location("event")
+            location.latitude = event.latitude
+            location.longitude = event.longitude
+
+            val distance = nowLocation.distanceTo(location)
+            Log.d("evenTag","距離:${distance},名稱:${event.name}")
+            if(distance <= 1000.0){
+                Log.e("evenTag","距離:${distance},名稱:${event.name}")
+                nearEvents.add(event)
+            }
+        }
+        return nearEvents
     }
 }
 

@@ -35,13 +35,14 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var dbHelper: DBHelper
     private lateinit var db: SQLiteDatabase
     private lateinit var adapter:travel_Adapter
-    private lateinit var nearetEvents:ArrayList<Event>
-    private lateinit var textView: TextView //測試用可刪
+    private lateinit var nearestEvent:Event
     private var hasGPS:Boolean = false          //檢查是否有GPS
     private var eventDistance: Float? = null      //活動距離(公尺)
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
     private var nowLocation = Location("nowLocation")       //現在位置
-    private var eventLocation = Location("eventLocation")   //活動位置
+    private var nearestEventLocation = Location("nearestEvent")   //活動位置
+    private lateinit var btn1: Button
+    private lateinit var location: Location
     private var locationCode:Int=1001
     private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,11 +54,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //抓取最後的GPS位置
 
 
-        event = dbHelper.queryAllEvents(nowLocation)  //取的所有event資料
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
-
-
         getNowLocation(25.021002,121.465042)
         SetRecyclerView(event,nowLocation)
         
@@ -66,13 +64,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
     @SuppressLint("MissingPermission")
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
-        val nearestEvent =dbHelper.queryNearestEvents(nowLocation)
-        //找出最近的活動
+        val nearestEvent =dbHelper.queryNearestEvents(nowLocation)          //最近的活動
         if (nearestEvent != null) {
-            getEventLocation(nearestEvent.latitude,nearestEvent.longitude)
-//            nearetEvents.add(nearestEvent)
+            getNearestEventLocation(nearestEvent.latitude,nearestEvent.longitude)
         }
-        eventDistance = nowLocation.distanceTo(eventLocation)           //取得與活動間的距離
+        eventDistance = nowLocation.distanceTo(nearestEventLocation)    //取得與最近活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
 
 //        fusedLocationClient.lastLocation  //抓取最後位置
@@ -85,10 +81,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
         Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
                 "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n"
                 + "nowLongitude:${nowLocation.longitude}\n"+ "nowLatitude:${nowLocation.latitude}")
-//        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
-//                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
 
-        changeItem(event)
+        changeItem(dbHelper.queryNearEvents(nowLocation))  //顯示附近的活動
+
+
+        Log.d("LTag","eventName:${nearestEvent!!.name} \n" +
+                "eventLongitude:${nearestEvent.longitude}" + " \neventLatitude:${nearestEvent.latitude}  \n" +
+                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n")
     }
 
     //取得現在位置
@@ -101,9 +100,9 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     //取得活動位置
-    private fun getEventLocation(latitude: Double, longitude: Double) {
-        eventLocation.longitude = longitude
-        eventLocation.latitude = latitude
+    private fun getNearestEventLocation(latitude: Double, longitude: Double) {
+        nearestEventLocation.longitude = longitude
+        nearestEventLocation.latitude = latitude
     }
 
     //判斷是否進入活動範圍
@@ -173,7 +172,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         ) {
             return
         }
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0L,0f,this)
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000L,1.0f,this)
     }
 
     override fun onPause() {
