@@ -192,10 +192,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
         //覆蓋OLD EVENTS
         adapter.notifyDataSetChanged()
     }
-    private fun getlastLocation(){
-
-    }
-
 
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
