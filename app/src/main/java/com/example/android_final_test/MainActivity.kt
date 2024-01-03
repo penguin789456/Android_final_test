@@ -43,24 +43,27 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private var nowLocation = Location("nowLocation")       //現在位置
     private var eventLocation = Location("eventLocation")   //活動位置
     private var locationCode:Int=1001
-//    private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
+    private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //抓取最後的GPS位置
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //抓取最後的GPS位置
+
 
         event = dbHelper.queryAllEvents(nowLocation)  //取的所有event資料
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
+
 
         getNowLocation(25.021002,121.465042)
         SetRecyclerView(event,nowLocation)
         
     }
 
+    @SuppressLint("MissingPermission")
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
         val nearestEvent =dbHelper.queryNearestEvents(nowLocation)
@@ -71,6 +74,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
         eventDistance = nowLocation.distanceTo(eventLocation)           //取得與活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
+
+//        fusedLocationClient.lastLocation  //抓取最後位置
+//            .addOnSuccessListener { locaion : Location? ->
+//                if (locaion!=null){
+//                    nowLocation=locaion
+//                }
+//            }
 
         Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
                 "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n"
@@ -181,6 +191,9 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private fun changeItem(event:List<Event>){
         //覆蓋OLD EVENTS
         adapter.notifyDataSetChanged()
+    }
+    private fun getlastLocation(){
+
     }
 
 

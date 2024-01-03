@@ -28,15 +28,4 @@
         app:layout_constraintTop_toBottomOf="@+id/testTV"
         app:layout_constraintVertical_bias="0.5" />
 
-    <Button
-        android:id="@+id/btnSet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/Recycler_travel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/testTV"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>
