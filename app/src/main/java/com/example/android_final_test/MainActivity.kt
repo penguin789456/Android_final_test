@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     @SuppressLint("MissingPermission")
     override fun onLocationChanged(p0: Location) {
-        getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
+        //getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
         val nearestEvent =dbHelper.queryNearestEvents(nowLocation)          //最近的活動
         if (nearestEvent != null) {
             getNearestEventLocation(nearestEvent.latitude,nearestEvent.longitude)
