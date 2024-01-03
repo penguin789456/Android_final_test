@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
         getNowLocation(25.021002,121.465042)
-        SetRecyclerView(event,nowLocation)
+        SetRecyclerView(dbHelper.queryNearEvents(nowLocation),nowLocation)
         
     }
 
@@ -83,11 +83,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 + "nowLongitude:${nowLocation.longitude}\n"+ "nowLatitude:${nowLocation.latitude}")
 
         changeItem(dbHelper.queryNearEvents(nowLocation))  //顯示附近的活動
-
-
-        Log.d("LTag","eventName:${nearestEvent!!.name} \n" +
-                "eventLongitude:${nearestEvent.longitude}" + " \neventLatitude:${nearestEvent.latitude}  \n" +
-                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n")
     }
 
     //取得現在位置
@@ -121,7 +116,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),1)
             }
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1.0f,this)  //取得位置(1秒更新,移動1m更新)
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,1.0f,this)  //取得位置(1秒更新,移動1m更新)
         }else{
             Log.d("LTag","設備未提供定位服務")  //如果沒找到GPS
         }
@@ -172,7 +167,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         ) {
             return
         }
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000L,1.0f,this)
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000L,1.0f,this)
     }
 
     override fun onPause() {
