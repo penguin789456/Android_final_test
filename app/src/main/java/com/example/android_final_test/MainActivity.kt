@@ -19,11 +19,15 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -39,20 +43,24 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var db: SQLiteDatabase
     private lateinit var adapter:travel_Adapter
     private lateinit var nearestEvent:Event
+    private lateinit var recyclerView:RecyclerView
+    private lateinit var fragment : FragmentContainerView
     private var hasGPS:Boolean = false          //檢查是否有GPS
     private var eventDistance: Float? = null      //活動距離(公尺)
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
+    private var disableView:Boolean = true          //顯示fragment || recyclerView
     private var nowLocation = Location("nowLocation")       //現在位置
     private var nearestEventLocation = Location("nearestEvent")   //活動位置
-    private lateinit var btn1: Button
+    private lateinit var btnAdv: Button
     private lateinit var location: Location
     private var locationCode:Int=1001
     private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
-        val btnAdv = findViewById<Button>(R.id.btnadv)
+
+
+        btnAdv = findViewById<Button>(R.id.btnadv)
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
@@ -63,13 +71,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
         checkFirstRun()            //檢查是否第一次開啟程式
         getNowLocation(25.021002,121.465042)
         SetRecyclerView(dbHelper.queryNearEvents(nowLocation),nowLocation)
-        
-        
+
+        recyclerView.visibility=View.GONE
         btnAdv.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply{
-                replace(R.id.fragmentContainerView,Fragment_advertise())
-                commit()
-            }
+            fragment = findViewById(R.id.fragmentContainerView)
+            toggleViews()
         }
     }
 
@@ -85,6 +91,9 @@ class MainActivity : AppCompatActivity(),LocationListener {
         if (isInEventRange){
             makeShowNotify(nearestEvent!!.name)
         }
+        var fragmentName:TextView=findViewById(R.id.eventName)
+        fragmentName.text="名字:${nearestEvent!!.name}\n 電話:${nearestEvent!!.tel}\n 地址:${nearestEvent.address}\n 距離:${eventDistance!!.toInt()}公尺"
+
 
 //        fusedLocationClient.lastLocation  //抓取最後位置
 //            .addOnSuccessListener { locaion : Location? ->
@@ -105,8 +114,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
 //        nowLocation.longitude = longitude
 //        nowLocation.latitude = latitude
         //測試用致理門口
-        nowLocation.longitude = 121.465042
-        nowLocation.latitude = 25.021002
+        nowLocation.longitude = longitude
+        nowLocation.latitude = latitude
     }
 
     //取得活動位置
@@ -192,7 +201,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     //生成RecyclerView
     private fun SetRecyclerView(eventList:List<Event>,mLocaton:Location){
-        val recyclerView=findViewById<RecyclerView>(R.id.Recycler_travel)
+        recyclerView=findViewById(R.id.Recycler_travel)
         recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
         adapter=travel_Adapter(this,eventList,mLocaton)
         recyclerView.adapter = adapter
@@ -228,5 +237,18 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
         notifyManager.notify(1,myBuilder.build())
 
+    }
+    fun toggleViews() {
+        if (disableView) {
+            fragment.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+            disableView = false
+            btnAdv.text = "最近地點"
+        } else {
+            fragment.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            disableView = true
+            btnAdv.text = "附近地點"
+        }
     }
 }

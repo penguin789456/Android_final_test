@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
@@ -45,10 +46,15 @@ class travel_Adapter(private val context: Context, private val dataList: List<Ev
         }
 
         holder.travel_detail.setOnClickListener {
-//            Log.d("intent","$origin,${currentItem.latitude},${currentItem.longitude}")
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&origin=$origin&destination=${currentItem.latitude},${currentItem.longitude}"))
-            intent.setPackage("com.google.android.apps.maps")
-            it.context.startActivity(intent)
+            val alertDialog = AlertDialog.Builder(context)
+                .setTitle("詳細資訊")
+                .setMessage("電話：${currentItem.tel}\n地址:${currentItem.address}")
+                .setPositiveButton("了解") { dialog, which ->
+                    // 点击 OK 按钮的操作
+                }
+                .create()
+
+            alertDialog.show()
         }
     }
 
