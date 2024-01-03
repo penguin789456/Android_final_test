@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
 import android.util.Log
 
-data class Event(val id:Long,val name: String, val tel: String, val address: String, val longitude: Double, val latitude: Double)
+data class Event(var id:Long, var name: String, var tel: String, var address: String, var longitude: Double, var latitude: Double)
 private lateinit  var main:MainActivity
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {

@@ -13,10 +13,12 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity(),LocationListener {
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var event:List<Event>                      //全部event資料 內含:id,name,tel,address,longitude,latitude
     private lateinit var dbHelper: DBHelper
     private lateinit var db: SQLiteDatabase
+    private lateinit var adapter:travel_Adapter
+    private lateinit var nearetEvents:ArrayList<Event>
     private lateinit var textView: TextView //測試用可刪
     private var hasGPS:Boolean = false          //檢查是否有GPS
     private var eventDistance: Float? = null      //活動距離(公尺)
@@ -53,14 +57,29 @@ class MainActivity : AppCompatActivity(),LocationListener {
 //                "nowLatitude\n" +
 //                "${nowLocation.latitude}"
 //        //--測試---
-        SetRecyclerView(event)
+        var dataList=ArrayList<Event>()
+        dataList.add(event.get(0))
+        SetRecyclerView(dataList)
+        val btn:Button=findViewById(R.id.btnSet)
+
+        btn.setOnClickListener {
+            try {
+                dataList.add(event.get(1))
+                adapter.notifyItemChanged(dataList.size- 1)
+            }catch (E:IOException){
+                Log.d("adapterError",E.toString())
+            }
+        }
+
     }
 
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
-        val nearestEvent =dbHelper.queryNearestEvents(nowLocation)               //找出最近的活動
+        val nearestEvent =dbHelper.queryNearestEvents(nowLocation)
+        //找出最近的活動
         if (nearestEvent != null) {
             getEventLocation(nearestEvent.latitude,nearestEvent.longitude)
+//            nearetEvents.add(nearestEvent)
         }
         eventDistance = nowLocation.distanceTo(eventLocation)           //取得與活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
@@ -69,6 +88,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 "Distance:${eventDistance}m \ninEventRange:${isInEventRange}")
 //        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
 //                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
+
+
     }
 
     //取得現在位置
@@ -155,15 +176,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private fun SetRecyclerView(eventList:List<Event>){
         val recyclerView=findViewById<RecyclerView>(R.id.Recycler_travel)
         recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
-        val DataList=ArrayList<Event>()
-        for (event in eventList) {
-            Log.d("EventLog", event.toString())
-            DataList.add(Event(event.id,event.name,event.tel,event.address,event.longitude,event.latitude))
-        }
-        val adapter=travel_Adapter(this,DataList)
+        adapter=travel_Adapter(this,eventList)
         recyclerView.adapter = adapter
-//        Log.d("Events",eventList.toString())
-
     }
 }
 
