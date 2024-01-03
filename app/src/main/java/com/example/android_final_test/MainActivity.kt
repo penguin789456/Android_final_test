@@ -44,22 +44,24 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var btn1: Button
     private lateinit var location: Location
     private var locationCode:Int=1001
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //抓取最後的GPS位置
+
 
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
         getNowLocation(25.021002,121.465042)
-        SetRecyclerView(dbHelper.queryNearEvents(nowLocation))
+        SetRecyclerView(event,nowLocation)
         
     }
 
+    @SuppressLint("MissingPermission")
     override fun onLocationChanged(p0: Location) {
         getNowLocation(p0.latitude,p0.longitude)                             //目前經緯度
         val nearestEvent =dbHelper.queryNearestEvents(nowLocation)          //最近的活動
@@ -69,6 +71,16 @@ class MainActivity : AppCompatActivity(),LocationListener {
         eventDistance = nowLocation.distanceTo(nearestEventLocation)    //取得與最近活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
 
+//        fusedLocationClient.lastLocation  //抓取最後位置
+//            .addOnSuccessListener { locaion : Location? ->
+//                if (locaion!=null){
+//                    nowLocation=locaion
+//                }
+//            }
+
+        Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
+                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n"
+                + "nowLongitude:${nowLocation.longitude}\n"+ "nowLatitude:${nowLocation.latitude}")
 
         changeItem(dbHelper.queryNearEvents(nowLocation))  //顯示附近的活動
 
@@ -169,17 +181,16 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     //生成RecyclerView
-    private fun SetRecyclerView(eventList:List<Event>){
+    private fun SetRecyclerView(eventList:List<Event>,mLocaton:Location){
         val recyclerView=findViewById<RecyclerView>(R.id.Recycler_travel)
         recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
-        adapter=travel_Adapter(this,eventList)
+        adapter=travel_Adapter(this,eventList,mLocaton)
         recyclerView.adapter = adapter
     }
     private fun changeItem(event:List<Event>){
         //覆蓋OLD EVENTS
         adapter.notifyDataSetChanged()
     }
-
 
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -188,21 +199,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
         if (requestCode == locationCode) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED&&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "取得權限", Toast.LENGTH_SHORT).show()
-                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
             } else {
                 Toast.makeText(this, "需要定位權限", Toast.LENGTH_SHORT).show()
             }
         }
     }
-//    private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
-//        val origin = latitude.toString()+","+longitude.toString() // 例如：String origin = "40.7128,-74.0060";
-//
-//        val destination = latitude.toString()+","+longitude // 例如：String destination = "34.0522,-118.2437";
-//
-//        val url ="https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
-//
-//        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//        intent.setPackage("com.google.android.apps.maps")
-//        startActivity(intent)
-//    }
+
 }
