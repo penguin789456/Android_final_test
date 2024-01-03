@@ -42,23 +42,22 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
     private var nowLocation = Location("nowLocation")       //現在位置
     private var eventLocation = Location("eventLocation")   //活動位置
-    private lateinit var btn1: Button
-    private lateinit var location: Location
     private var locationCode:Int=1001
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+//    private lateinit var fusedLocationClient: FusedLocationProviderClient //抓取最後的GPS位置
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //抓取最後的GPS位置
 
         event = dbHelper.queryAllEvents(nowLocation)  //取的所有event資料
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
-        
-        SetRecyclerView(event)
+
+        getNowLocation(25.021002,121.465042)
+        SetRecyclerView(event,nowLocation)
         
     }
 
@@ -173,10 +172,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     //生成RecyclerView
-    private fun SetRecyclerView(eventList:List<Event>){
+    private fun SetRecyclerView(eventList:List<Event>,mLocaton:Location){
         val recyclerView=findViewById<RecyclerView>(R.id.Recycler_travel)
         recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
-        adapter=travel_Adapter(this,eventList)
+        adapter=travel_Adapter(this,eventList,mLocaton)
         recyclerView.adapter = adapter
     }
     private fun changeItem(event:List<Event>){
@@ -192,21 +191,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
         if (requestCode == locationCode) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED&&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "取得權限", Toast.LENGTH_SHORT).show()
-                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
             } else {
                 Toast.makeText(this, "需要定位權限", Toast.LENGTH_SHORT).show()
             }
         }
     }
-//    private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
-//        val origin = latitude.toString()+","+longitude.toString() // 例如：String origin = "40.7128,-74.0060";
-//
-//        val destination = latitude.toString()+","+longitude // 例如：String destination = "34.0522,-118.2437";
-//
-//        val url ="https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
-//
-//        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//        intent.setPackage("com.google.android.apps.maps")
-//        startActivity(intent)
-//    }
+
 }
