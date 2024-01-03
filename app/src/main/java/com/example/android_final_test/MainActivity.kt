@@ -2,6 +2,8 @@ package com.example.android_final_test
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
 
 import android.content.Context
 import android.content.Intent
@@ -21,6 +23,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -70,6 +73,9 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
         eventDistance = nowLocation.distanceTo(nearestEventLocation)    //取得與最近活動間的距離
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
+        if (isInEventRange){
+            makeShowNotify(nearestEvent!!.name)
+        }
 
 //        fusedLocationClient.lastLocation  //抓取最後位置
 //            .addOnSuccessListener { locaion : Location? ->
@@ -199,5 +205,18 @@ class MainActivity : AppCompatActivity(),LocationListener {
             }
         }
     }
-
+    private fun makeShowNotify(s:String){
+        val notifyManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel= NotificationChannel("mCounter","Channel Counter",NotificationManager.IMPORTANCE_DEFAULT)
+        notifyManager.createNotificationChannel(channel)
+        val myBuilder= NotificationCompat.Builder(this,"mCounter").apply{
+            setContentTitle("附近有活動!!")
+            setContentText("活動地點:$s")
+            setSubText("我在狀態列")
+            setWhen(System.currentTimeMillis())
+            setChannelId("mCounter")
+            setSmallIcon(R.drawable.pepega)
+        }
+        notifyManager.notify(1,myBuilder.build())
+    }
 }
