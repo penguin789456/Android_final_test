@@ -15,8 +15,9 @@ class recyclerviewAdapter(val informationList:ArrayList<oneitem>) :RecyclerView.
         val VHlink:Button = itemView.findViewById(R.id.mlink)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {//樣式
         val view = LayoutInflater.from(parent.context).inflate(R.layout.cardview,parent,false)//不知道從哪傳進來(從parent傳進來的)
+        return ViewHolder(view)
     }
 
     override fun getItemCount(): Int {//回應外界的問的(取得外部的東西)
@@ -24,9 +25,13 @@ class recyclerviewAdapter(val informationList:ArrayList<oneitem>) :RecyclerView.
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
+    val oneItem = informationList[position]//抓取位置(自動)
+            holder.VHnumber.text = oneItem.number
+            holder.VHinformation.text = oneItem.information
+        holder.VHdetail.text = "Hardcoded Detail"
+        holder.VHlink.text = "Hardcoded Link"
     }
-//傳遞資料的Viewholder是誰?
+
 //mlist = informationlist                                                                                   //自己定義ViewHolder
 
 }
