@@ -57,20 +57,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 //                "nowLatitude\n" +
 //                "${nowLocation.latitude}"
 //        //--測試---
-        var dataList=ArrayList<Event>()
-        dataList.add(event.get(0))
-        SetRecyclerView(dataList)
-        val btn:Button=findViewById(R.id.btnSet)
-
-        btn.setOnClickListener {
-            try {
-                dataList.add(event.get(1))
-                adapter.notifyItemChanged(dataList.size- 1)
-            }catch (E:IOException){
-                Log.d("adapterError",E.toString())
-            }
-        }
-
+        SetRecyclerView(event)
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -85,11 +72,12 @@ class MainActivity : AppCompatActivity(),LocationListener {
         isInEventRange = inEventRange(eventDistance!!.toInt())          //判斷是否在活動範圍內
 
         Log.d("LTag","eventName:${nearestEvent!!.name} \neventLongitude:${nearestEvent.longitude} \neventLatitude:${nearestEvent.latitude}  \n" +
-                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}")
+                "Distance:${eventDistance}m \ninEventRange:${isInEventRange}\n"
+                + "nowLongitude:${nowLocation.longitude}\n"+ "nowLatitude:${nowLocation.latitude}")
 //        textView.text = "Name:${nearestEvent!!.name} \nDistance:${eventDistance}m \ninRange:${isInEventRange} \nAddress:\n${nearestEvent.address}" +
 //                "\n\nnowLongitude:\n${nowLocation.longitude} \nnowLatitude\n${nowLocation.latitude}"
 
-
+        changeItem(event)
     }
 
     //取得現在位置
@@ -164,7 +152,17 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
     override fun onResume() {
         super.onResume()
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)  //重新取得location
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0L,0f,this)
     }
 
     override fun onPause() {
@@ -178,6 +176,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
         recyclerView.layoutManager = LinearLayoutManager(this)  // 或其他布局管理器，例如 GridLayoutManager
         adapter=travel_Adapter(this,eventList)
         recyclerView.adapter = adapter
+    }
+    private fun changeItem(event:List<Event>){
+        //覆蓋OLD EVENTS
+        adapter.notifyDataSetChanged()
     }
 }
 
