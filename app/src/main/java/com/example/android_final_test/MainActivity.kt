@@ -1,6 +1,7 @@
 package com.example.android_final_test
 
 import android.Manifest
+
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
@@ -35,29 +36,25 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private var isInEventRange:Boolean = false  //判斷是否有在範圍內
     private var nowLocation = Location("nowLocation")       //現在位置
     private var eventLocation = Location("eventLocation")   //活動位置
+    private lateinit var btn1: Button
+    private lateinit var location: Location
+    private var locationCode:Int=1001
+    private lateinit var mLocationManager:LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         dbHelper = DBHelper(this)
         db = dbHelper.writableDatabase
         mLocationManager = getSystemService(LOCATION_SERVICE) as LocationManager    //取得location manager
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         event = dbHelper.queryAllEvents(nowLocation)  //取的所有event資料
         checkLocationPermission()  //檢查location權限
         checkFirstRun()            //檢查是否第一次開啟程式
-
-        //--測試--- 可刪
-//        textView = findViewById(R.id.testTV)
-//        getNowLocation(0.0,0.0)
-//        textView.text = "資料準備中...\n" +
-//                "\n" +
-//                "nowLongitude:\n" +
-//                "${nowLocation.longitude} \n" +
-//                "nowLatitude\n" +
-//                "${nowLocation.latitude}"
-//        //--測試---
+        
         SetRecyclerView(event)
+        
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -181,6 +178,34 @@ class MainActivity : AppCompatActivity(),LocationListener {
         //覆蓋OLD EVENTS
         adapter.notifyDataSetChanged()
     }
+
+    @SuppressLint("MissingPermission")
+    private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
+        var getLocation:Location
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location : Location? ->}.also { getLocation=location }
+
+        val origin = getLocation.latitude.toString()+","+getLocation.longitude // 例如：String origin = "40.7128,-74.0060";
+
+        val destination = latitude.toString()+","+longitude // 例如：String destination = "34.0522,-118.2437";
+
+        val url ="https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
+
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        intent.setPackage("com.google.android.apps.maps")
+        startActivity(intent)
+    }
+    @SuppressLint("MissingPermission")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == locationCode) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED&&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "取得權限", Toast.LENGTH_SHORT).show()
+                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!
+            } else {
+                Toast.makeText(this, "需要定位權限", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
-
-
