@@ -41,26 +41,13 @@ class Fragment_advertise : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val btnExit = view.findViewById<Button>(R.id.btnexit)
-        btnExit.setOnClickListener {
+        val btnExitA = view.findViewById<Button>(R.id.btnexitA)
+        btnExitA.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction().apply {
                 replace(R.id.fragmentContainerView,Fragment_list())
                 commit()
             }
         }
-
-        val recArrayN = arguments?.getStringArray("ActivityName")
-        val recArrayC = arguments?.getStringArray("ActivityContent")
-        val showMessage = view.findViewById<TextView>(R.id.msgCon)
-        var s = ""
-        if (recArrayN != null && recArrayC !=null) {
-            for (itemN in recArrayN){
-                for (itemC in recArrayC){
-                    s+=itemN.toString() + "\n" + itemC.toString() + "\n"
-                }
-            }
-        }
-        showMessage.text = s
     }
 
     companion object {
