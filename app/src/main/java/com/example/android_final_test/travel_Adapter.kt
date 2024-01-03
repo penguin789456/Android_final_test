@@ -1,11 +1,16 @@
 package com.example.android_final_test
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.location.Location
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
 class travel_Adapter(private val context: Context, private val dataList: List<Event>) : RecyclerView.Adapter<travel_Adapter.MyViewHolder>(){
@@ -28,5 +33,7 @@ class travel_Adapter(private val context: Context, private val dataList: List<Ev
         val currentItem = dataList[position]
         holder.trave_name.text=currentItem.name
     }
+
+
 
 }

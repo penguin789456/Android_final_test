@@ -1,13 +1,16 @@
 package com.example.android_final_test
 
 import android.Manifest
+import android.annotation.SuppressLint
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import java.io.BufferedReader
@@ -16,9 +19,12 @@ import java.io.InputStreamReader
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.io.IOException
 
 
@@ -39,7 +45,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var btn1: Button
     private lateinit var location: Location
     private var locationCode:Int=1001
-    private lateinit var mLocationManager:LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -179,22 +184,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         adapter.notifyDataSetChanged()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
-        var getLocation:Location
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location : Location? ->}.also { getLocation=location }
 
-        val origin = getLocation.latitude.toString()+","+getLocation.longitude // 例如：String origin = "40.7128,-74.0060";
-
-        val destination = latitude.toString()+","+longitude // 例如：String destination = "34.0522,-118.2437";
-
-        val url ="https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
-
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        intent.setPackage("com.google.android.apps.maps")
-        startActivity(intent)
-    }
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -208,4 +198,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
             }
         }
     }
+//    private fun Google_Map(latitude:Double,longitude:Double,destination:String) {
+//        val origin = latitude.toString()+","+longitude.toString() // 例如：String origin = "40.7128,-74.0060";
+//
+//        val destination = latitude.toString()+","+longitude // 例如：String destination = "34.0522,-118.2437";
+//
+//        val url ="https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
+//
+//        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+//        intent.setPackage("com.google.android.apps.maps")
+//        startActivity(intent)
+//    }
 }
