@@ -48,8 +48,8 @@ class Fragment_list : Fragment() {
         bundle.putStringArray("ActivityName",AName)
         bundle.putStringArray("ActivityContent",AContent)
 
-        val fragment = Fragment_detail()
-        fragment.arguments = bundle
+//        val fragment = Fragment_detail()
+//        fragment.arguments = bundle
 
 //        val btnDet = view.findViewById<Button>(R.id.btnDetail)
 //        btnDet.setOnClickListener {
